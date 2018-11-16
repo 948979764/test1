@@ -1,0 +1,33 @@
+用户名：948979764
+密码：948979764@qq.com
+
+
+github
+
+git config --global user.name "948979764"
+
+git config --global user.email "948979764@qq.com"
+
+git init 初始化
+
+
+ssh-keygen -t rsa -C "948979764@qq.com"
+
+
+https://github.com/948979764/test1.git
+
+拉取远程仓库 git pull https://github.com/948979764/test1.git
+
+提交：git push https://github.com/948979764/test1.git
+
+
+$ git remote add origin  https://github.com/dingwanga/test.git
+
+
+git push origin master
+
+
+
+
+
+
