@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans"  
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+        xmlns:aop="http://www.springframework.org/schema/aop"  
+        xmlns:p="http://www.springframework.org/schema/p"  
+        xmlns:tx="http://www.springframework.org/schema/tx"  
+        xmlns:context="http://www.springframework.org/schema/context"  
+        xsi:schemaLocation="   
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd   
+            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd   
+            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd 
+            http://www.springframework.org/schema/context 
+            http://www.springframework.org/schema/context/spring-context.xsd">  
+            
+    
+     
+ 
+    <!-- JNDI获取数据源(使用dbcp连接池) 直接连接数据库   替代mybatis-->  
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close" scope="singleton">
+    		<property name="driverClassName" value="com.mysql.jdbc.Driver" />  
+			<property name="url" value="jdbc:mysql://127.0.0.1:3306/smbms?useUnicode=true&amp;characterEncoding=utf-8" />  
+			<property name="username" value="root" />  
+			<property name="password" value="root" />		 
+    </bean>
+     
+    	<!-- 配置mybitas SqlSessionFactoryBean 调用数据-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    	<property name="dataSource" ref="dataSource"/>
+    	
+    	
+          	<!-- 可以不用写mybatis-config 实体类别名,在mapper中返回类型可以简写-->
+    	<property name="typeAliasesPackage" value="cn.bdqn.pojo"/>
+    	 
+    	     <!-- 相当于dao层的实现类 -->
+    	<property name="mapperLocations">
+			<list>
+				<value>classpath:cn/bdqn/dao/mapper/*.xml</value>
+			</list>
+		</property>
+    </bean>
+    
+    
+    
+            <!--搜索service层 注解@  -->
+    <context:component-scan base-package="cn.bdqn.service"/> 
+    
+   	
+   
+    
+	   <!--最终解决方法  调用对应的dao层 接口的实现类  -->
+       <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="cn.bdqn.dao"/>
+	  </bean>
+       
+	
+   	<!-- AOP 事务处理 开始 -->    
+	<!-- 事务管理者 -->
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	<tx:annotation-driven transaction-manager="txManager"/>
+	<!-- 事务通知者 -->
+	<tx:advice id="myAdvice" transaction-manager="txManager">
+		<!-- 事务传播机制 -->
+		<tx:attributes>
+			<tx:method name="find*" read-only="true" propagation="SUPPORTS"/>
+			<tx:method name="search*" read-only="true" propagation="SUPPORTS"/>
+			<tx:method name="get*" read-only="true" propagation="SUPPORTS"/>
+			<tx:method name="do*"  propagation="REQUIRED"/>
+			<tx:method name="add*" propagation="REQUIRED"/>
+			<tx:method name="update*" propagation="REQUIRED"/>
+			<tx:method name="del*" propagation="REQUIRED"/>
+			<tx:method name="insert*" propagation="REQUIRED"/>
+		</tx:attributes>
+	</tx:advice>
+	<!-- 通过切面织入事务 -->
+	<aop:config>
+		<aop:pointcut expression="execution(* cn.bdqn.service.*.*(..))" id="myPoint"/>
+		<aop:advisor advice-ref="myAdvice" pointcut-ref="myPoint"/>
+	</aop:config> 
+	
+    
+</beans>

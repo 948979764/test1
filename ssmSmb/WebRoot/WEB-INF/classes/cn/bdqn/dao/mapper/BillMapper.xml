@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.bdqn.dao.BillDao">
+ 
+	 <select id="findByPage" resultType="Bill">
+		SELECT 
+		
+		B.billCode,B.id,B.productName,P.proName AS providerName,B.totalPrice,B.isPayment,B.creationDate
+		
+		 FROM smbms_bill B INNER JOIN  smbms_provider P
+		 ON B.providerId = P.id
+		   <where>
+	 <if test="queryProductName!=null and queryProductName!=''">
+	AND productName LIKE CONCAT ('%',#{queryProductName},'%')
+	</if>
+	<if test="queryProviderId!=null and queryProviderId!=0">
+	 AND providerId=#{queryProviderId}
+	</if>
+	<if test="queryIsPayment!=null and queryIsPayment!=0">
+	 AND isPayment=#{queryIsPayment}
+	</if>
+	 </where>
+		 LIMIT #{from},#{pageSize}
+		  
+	</select>
+	 
+	 
+	 <select id="getTotalCount" resultType="int">
+	   SELECT COUNT(id) FROM `smbms_bill` 
+	 <where>
+	 <if test="queryProductName!=null and queryProductName!=''">
+	AND  productName LIKE CONCAT ('%',#{queryProductName},'%')
+	</if>
+	<if test="queryIsPayment!=null and queryIsPayment!=0">
+	 AND   isPayment=#{queryIsPayment}
+	</if>
+	<if test="queryProviderId!=null and queryProviderId!=0">
+	 AND  providerId=#{queryProviderId}
+	</if>
+	 </where> 
+	</select>
+	
+	<insert id="addBill" parameterType="Bill">
+	INSERT INTO smbms_bill(
+  
+	billCode, 
+	productName,  
+	productUnit, 
+	productCount, 
+	totalPrice, 
+	isPayment, 
+	createdBy, 
+	creationDate, 
+	providerId
+	) VALUES(
+	 #{billCode},
+	 #{productName},
+	 #{productUnit},
+	  #{productCount},
+	 #{totalPrice},
+	 #{isPayment},
+	  #{createdBy},
+	 #{creationDate},
+	 #{providerId}
+	 
+	 )
+	</insert>
+ 
+ <update id="updateModify" parameterType="Bill">
+	UPDATE smbms_bill
+	<trim prefix="set" suffix="WHERE id = #{id}" suffixOverrides=",">
+	<if test="billCode!=null">
+	billCode = #{billCode} , 
+	</if>
+	<if test="productName!=null">
+	productName =  #{productName} , 
+	</if>
+	<if test="productUnit!=null">
+	productUnit = #{productUnit} , 
+	</if>
+	<if test="productCount!=null">
+	productCount = #{productCount} ,
+	</if>
+	<if test="totalPrice!=null">
+	totalPrice = #{totalPrice} ,
+	</if>
+	<if test="isPayment!=null">
+	isPayment = #{isPayment} ,
+	</if>
+	<if test="createdBy!=null">
+	createdBy = #{createdBy} , 
+	</if>
+	<if test="creationDate!=null">
+	creationDate = #{creationDate} ,
+	</if>
+	<if test="providerId!=null">
+	providerId = #{providerId} , 
+	</if>
+	 
+	</trim>
+	</update>
+	<select id="findById" parameterType="int" resultType="Bill">
+		 SELECT B.id, B.billCode,B.productName ,B.productUnit,B.isPayment,B.productCount,B.totalPrice, P.proName AS providerName
+         FROM smbms_bill B INNER JOIN smbms_provider P
+         ON B.providerId = P.id WHERE  B.id = #{id}
+	</select>
+	
+	<delete id="delbill" parameterType="int">
+		DELETE FROM smbms_bill WHERE id = #{uid}
+	</delete>
+</mapper>

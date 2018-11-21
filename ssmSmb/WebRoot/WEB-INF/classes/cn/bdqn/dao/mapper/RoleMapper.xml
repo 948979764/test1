@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.bdqn.dao.RoleDao">
+	
+	<resultMap type="Role" id="roleMap">
+		<id property="id" column="id"/>
+		<collection property="userList" ofType="User">
+			<id property="id" column="userId"/>
+			<result property="userName" column="userName"/>
+		</collection>
+	</resultMap>
+	
+	<select id="findById" parameterType="int" resultMap="roleMap">
+		SELECT R.id,R.roleCode,R.roleName, U.id AS userId,U.userName,U.userCode 
+		FROM smbms_role R INNER JOIN  smbms_user U
+		ON U.userRole = R.id WHERE R.id = #{roleId}
+	</select>
+	
+	
+	<select id="findAll" resultType="Role">
+		SELECT * FROM smbms_role
+	</select>
+	
+</mapper>
